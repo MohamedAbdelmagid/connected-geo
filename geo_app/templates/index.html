@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- leaflet dependences -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <!-- <link rel="stylesheet" href="{% static "css/style.css" %}"> -->
+  <style>
+    #map {
+      width: 100%;
+      height: 500px;
+    }
+  </style>
+  <title>GeoDjango App</title>
+</head>
+<body>
+  <h2>GeoDjango Map</h2>
+  <div id="map"></div>
+  <script>
+    let map = L.map("map").setView([15.5007, 32.5599], 8)
+    let layerOSM = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+    map.addLayer(layerOSM)
+
+    function linearProjectsStyle(feature) {
+      return {
+        fillColor: getColor(feature.properties.activity),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.7
+      }
+    }
+
+    function getColor(activity) {
+      if (activity === 'Nest Area') {
+        return 'red'
+      } else {
+        return 'deep pink'
+      }
+    }
+
+    fetch("{% url 'linear-projects' %}").then((resp) => resp.json()) // Transform the data into json
+      .then(function(data) {
+        // Add data to the map
+        let baeaNests = L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(`N: ${feature.properties.lat_y_dd}, E: ${feature.properties.long_x_dd}`)
+          },
+          style: linearProjectsStyle
+        }).addTo(map)
+        map.fitBounds(baeaNests.getBounds())
+      })
+  </script>
+  <!-- <script src="{% static "js/script.js" %}"></script> -->
+</body>
+</html>

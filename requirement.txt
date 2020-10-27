@@ -1,0 +1,8 @@
+django
+psycopg2
+psycopg2-binary
+GDAL
+django-leaflet
+gunicorn
+django-heroku
+whitenoise
